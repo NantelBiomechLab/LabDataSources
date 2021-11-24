@@ -1,4 +1,4 @@
-classdef TRCFile < Source
+classdef TRCSource < Source
     methods
         function mkrs = readsource(obj, varargin)
             p = inputParser;
