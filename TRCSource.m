@@ -2,7 +2,7 @@ classdef TRCSource < Source
     methods
         function mkrs = readsource(obj, varargin)
             p = inputParser;
-            addRequired(p, 'obj', @(x) isa(x, 'Source'));
+            addRequired(p, 'obj', @(x) isa(x, 'TRCSource'));
             addParameter(p, 'Markers', {});
             addParameter(p, 'Start', -Inf);
             addParameter(p, 'Finish', Inf);
@@ -11,6 +11,8 @@ classdef TRCSource < Source
             start = p.Results.Start;
             finish = p.Results.Finish;
             mkrlabels = p.Results.Markers;
+
+            import org.opensim.modeling.*
 
             trc = TimeSeriesTableVec3(obj.path);
 
@@ -42,17 +44,30 @@ classdef TRCSource < Source
         function src = generatesource(obj, trial, deps, varargin)
             p = inputParser;
             p.KeepUnmatched = true;
-            addRequired(p, 'obj', @(x) isa(x, 'Source'));
+            addRequired(p, 'obj', @(x) isa(x, 'TRCSource'));
             addRequired(p, 'trial', @(x) isa(x, 'Trial'));
             addOptional(p, 'deps', false);
+            addOptional(p, 'Filter', false);
+            addOptional(p, 'CutoffFrequency', false);
 
             parse(p, obj, trial, deps, varargin{:});
+            filtflag = p.Results.Filter;
+            fc = p.Results.CutoffFrequency;
+            if filtflag && fc == false
+                error('''CutoffFrequency'' must be given if ''Filter'' is set to true')
+            end
+
+            import org.opensim.modeling.*
 
             c3dsrc = getsource(trial, C3DSource);
             c3d = osimC3D(c3dsrc.path, 1);
 
-            %TODO: Figure out if filtering using the osim functionality is possible
             mkrs = c3d.getTable_markers();
+            if filtflag
+                flat_mkrs = flatten(mkrs);
+                TableUtilities.filterLowpass(flat_mkrs, fc);
+                mkrs = packVec3(flat_mkrs);
+            end
             TRCFileAdaptor().write(mkrs, obj.path);
 
             src = obj;
