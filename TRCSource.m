@@ -15,6 +15,10 @@ classdef TRCSource < Source
             end
         end
 
+        function deps = dependencies(obj)
+            deps = {C3DSource()};
+        end
+
         function mkrs = readsource(obj, varargin)
             p = inputParser;
             addRequired(p, 'obj', @(x) isa(x, 'TRCSource'));
@@ -83,7 +87,7 @@ classdef TRCSource < Source
                 TableUtilities.filterLowpass(flat_mkrs, fc);
                 mkrs = packVec3(flat_mkrs);
             end
-            TRCFileAdaptor().write(mkrs, obj.path);
+            TRCFileAdapter().write(mkrs, obj.path);
 
             src = obj;
         end
