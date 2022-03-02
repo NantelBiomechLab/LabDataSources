@@ -1,5 +1,20 @@
 classdef TRCSource < Source
     methods
+        function src = TRCSource(path)
+            if nargin == 0
+                src.path = [tempname, '.trc'];
+            else
+                src.path = path;
+            end
+        end
+
+        function ext = srcext(obj)
+            ext = srcext@Source(obj);
+            if isempty(ext)
+                ext = '.trc';
+            end
+        end
+
         function mkrs = readsource(obj, varargin)
             p = inputParser;
             addRequired(p, 'obj', @(x) isa(x, 'TRCSource'));

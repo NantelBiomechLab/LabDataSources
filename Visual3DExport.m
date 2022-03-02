@@ -1,5 +1,12 @@
 classdef Visual3DExport < Source
     methods
+        function ext = srcext(obj)
+            ext = srcext@Source(obj);
+            if isempty(ext)
+                ext = '.mat';
+            end
+        end
+
         function [fs, evs, series] = readsource(obj, varargin)
             p = inputParser;
             addRequired(p, 'obj', @(x) isa(x, 'Source'));

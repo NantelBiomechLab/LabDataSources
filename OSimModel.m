@@ -5,7 +5,10 @@ classdef OSimModel < Source
         end
 
         function ext = srcext(obj)
-            ext = '.osim';
+            ext = srcext@Source(obj);
+            if isempty(ext)
+                ext = '.osim';
+            end
         end
     end
 end

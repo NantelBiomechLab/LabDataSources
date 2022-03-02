@@ -1,5 +1,12 @@
 classdef Visual3DEvents < Source
     methods
+        function ext = srcext(obj)
+            ext = srcext@Source(obj);
+            if isempty(ext)
+                ext = '.tsv';
+            end
+        end
+
         function evs = readsource(obj, varargin)
             p = inputParser;
             addRequired(p, 'obj', @(x) isa(x, 'Source'));

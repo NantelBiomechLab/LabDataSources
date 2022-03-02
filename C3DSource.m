@@ -14,6 +14,13 @@ classdef C3DSource < Source
 
             c3d = osimC3D(obj.path, forceLoc);
         end
+
+        function ext = srcext(obj)
+            ext = srcext@Source(obj);
+            if isempty(ext)
+                ext = '.c3d';
+            end
+        end
     end
 end
 

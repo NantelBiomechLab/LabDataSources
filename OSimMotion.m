@@ -5,7 +5,10 @@ classdef OSimMotion < Source
         end
 
         function ext = srcext(obj)
-            ext = '.mot';
+            ext = srcext@Source(obj);
+            if isempty(ext)
+                ext = '.mot';
+            end
         end
 
         function deps = dependencies(obj)
