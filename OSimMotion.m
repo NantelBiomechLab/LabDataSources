@@ -12,10 +12,10 @@ classdef OSimMotion < Source
         end
 
         function deps = dependencies(obj)
-            deps = {OSimModel(), TRCFile()};
+            deps = {OSimModel(), TRCSource()};
         end
 
-        function data = readsource(obj)
+        function data = readsource(obj, varargin)
             % data = readtable(obj.path, 'FileType','text', 'ReadVariableNames',true,...
             %     'HeaderLines',10);
             import org.opensim.modeling.*
@@ -24,10 +24,10 @@ classdef OSimMotion < Source
 
         function src = generatesource(obj, trial, deps, varargin)
             p = inputParser;
-            addRequired(p, 'obj', @(x) isa(x, 'OSimMotion'));
+            addRequired(p, 'obj');
             addRequired(p, 'trial', @(x) isa(x, 'Trial'));
             addRequired(p, 'deps');
-            addOptional(p, 'IKSetupFile', '');
+            addOptional(p, 'SetupFile', '');
             addOptional(p, 'StartTime', -Inf);
             addOptional(p, 'FinishTime', Inf);
 
@@ -44,10 +44,11 @@ classdef OSimMotion < Source
             import org.opensim.modeling.*
 
             modelsrc = deps(cellfun(@(x) isa(x, 'OSimModel'), deps));
-            model = Model(getsource(trial, modelsrc{1}));
+            modelsrc = getsource(trial, modelsrc{1});
+            model = Model(modelsrc.path);
             model.initSystem();
 
-            trcsrc = deps(cellfun(@(x) isa(x, 'TRCFile'), deps));
+            trcsrc = deps(cellfun(@(x) isa(x, 'TRCSource'), deps));
             trc = getsource(trial, trcsrc{1});
 
             if isempty(iksetupfile)
