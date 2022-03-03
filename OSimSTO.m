@@ -1,21 +1,21 @@
-classdef OSimMotion < Source
+classdef OSimSTO < Source
     methods
         function name = srcname_default(obj)
-            name = 'ik';
+            name = 'sto';
         end
 
         function ext = srcext(obj)
             ext = srcext@Source(obj);
             if isempty(ext)
-                ext = '.mot';
+                ext = '.sto';
             end
         end
 
         function deps = dependencies(obj)
-            deps = {OSimModel(), TRCSource()};
+            deps = {OSimModel(), OSimMotion()};
         end
 
-        function data = readsource(obj, varargin)
+        function data = readsource(obj)
             % data = readtable(obj.path, 'FileType','text', 'ReadVariableNames',true,...
             %     'HeaderLines',10);
             import org.opensim.modeling.*
@@ -46,27 +46,28 @@ classdef OSimMotion < Source
             modelsrc = deps(cellfun(@(x) isa(x, 'OSimModel'), deps));
             modelsrc = getsource(trial, modelsrc{1});
             model = Model(modelsrc.path);
-            model.initSystem();
+            state = model.initSystem();
 
-            trcsrc = deps(cellfun(@(x) isa(x, 'TRCSource'), deps));
-            trc = getsource(trial, trcsrc{1});
+            motsrc = deps(cellfun(@(x) isa(x, 'OSimMotion'), deps));
+            mot = getsource(trial, motsrc{1});
 
             if isempty(setupfile)
-                iktool = InverseKinematicsTool();
+                atool = AnalyzeTool();
             else
-                iktool = InverseKinematicsTool(setupfile, false);
+                atool = AnalyzeTool(setupfile, false);
             end
 
-            iktool.setModel(model);
-            iktool.set_model_file(model.getInputFileName())
-            iktool.setMarkerDataFileName(trc.path);
-            iktool.setStartTime(starttime);
-            iktool.setEndTime(finishtime);
-            iktool.setOutputMotionFileName(obj.path);
-
+            atool.setModel(model);
+            atool.setModelFilename(model.getInputFileName())
+            atool.setName(trial.name);
+            atool.setCoordinatesFileName(mot.path);
+            atool.setInitialTime(starttime);
+            atool.setFinalTime(finishtime);
+            atool.setResultsDir(objdir);
+            
             xmlfn = [tempname '.xml'];
-            iktool.print(xmlfn);
-
+            atool.print(xmlfn);
+            
             status = system(['opensim-cmd --log error run-tool ' xmlfn]);
             assert(status == 0)
 
