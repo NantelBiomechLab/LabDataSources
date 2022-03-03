@@ -68,10 +68,13 @@ classdef TRCSource < Source
             addOptional(p, 'deps', false);
             addOptional(p, 'Filter', false);
             addOptional(p, 'CutoffFrequency', false);
+            addParameter(p, 'LabOrientation', struct());
 
             parse(p, obj, trial, deps, varargin{:});
             filtflag = p.Results.Filter;
             fc = p.Results.CutoffFrequency;
+            laborient = p.Results.LabOrientation;
+
             if filtflag && fc == false
                 error('''CutoffFrequency'' must be given if ''Filter'' is set to true')
             end
@@ -80,6 +83,15 @@ classdef TRCSource < Source
 
             c3dsrc = getsource(trial, C3DSource);
             c3d = osimC3D(c3dsrc.path, 1);
+
+            if ~isequal(laborient, struct())
+                dims = fieldnames(laborient);
+                assert(all(ismember(dims, {'x','y','z'})));
+                for dimi = 1:length(dims)
+                    dim = dims{dimi};
+                    c3d.rotateData(dim, laborient.(dim));
+                end
+            end
 
             mkrs = c3d.getTable_markers();
             if filtflag
