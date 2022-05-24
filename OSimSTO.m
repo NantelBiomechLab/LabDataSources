@@ -15,7 +15,7 @@ classdef OSimSTO < Source
             deps = {OSimModel(), OSimMotion()};
         end
 
-        function data = readsource(obj)
+        function data = readsource(obj, varargin)
             % data = readtable(obj.path, 'FileType','text', 'ReadVariableNames',true,...
             %     'HeaderLines',10);
             import org.opensim.modeling.*
