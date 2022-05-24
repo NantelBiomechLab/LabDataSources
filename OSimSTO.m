@@ -16,10 +16,12 @@ classdef OSimSTO < Source
         end
 
         function data = readsource(obj, varargin)
-            % data = readtable(obj.path, 'FileType','text', 'ReadVariableNames',true,...
-            %     'HeaderLines',10);
             import org.opensim.modeling.*
-            data = TimeSeriesTable(obj.path);
+            if endsWith(obj.path, 'OutputsVec3.sto')
+                data = TimeSeriesTableVec3(obj.path);
+            else
+                data = TimeSeriesTableVec3(obj.path);
+            end
         end
 
         function src = generatesource(obj, trial, deps, varargin)
